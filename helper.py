@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 def GetItemsetFromFile(file):
   return [i.strip().split() for i in open(file, 'r').readlines()]
@@ -35,3 +36,14 @@ def CreateSupportList(data, support):
     new_list.append(current_list)
     i+=1
   return new_list
+
+def SaveDataFrameToHTMLFile(df, filename):
+  html = df.to_html()
+  try:
+    os.remove(filename)
+  except OSError:
+    pass
+  filepath = "./html_files/" + filename + ".html"
+  file = open(filepath, 'a')
+  file.write(html)
+  file.close()

@@ -29,7 +29,6 @@ def GetDataItems(baskets_data):
 # Prune step
 def DetermineFrequentItems(baskets_data, Ck, min_support):
   print("Determining Frequent Items...")
-  print("Set we are working with: " + str(Ck))
   count = {}
   freq_items = []
   Lk = []
@@ -49,7 +48,6 @@ def DetermineFrequentItems(baskets_data, Ck, min_support):
           count[candidate] += 1
   # calc support for each item in c1
   for item in count:
-    print("Count of " + str(item) + " is: " + str(count[item]))
     support = count[item] / len(baskets_data)
     if support >= min_support:
       freq_items.insert(0, support)

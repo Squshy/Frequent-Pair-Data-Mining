@@ -5,14 +5,15 @@
 # Find frequent Items
 # cK : list of candidate those might be frequent items
 # lK : The set of truly frequent items
-def GetDataItems(baskets_data):
+def GetDataItems(data):
   print("Getting unique items in baskets...")
   Ck = [] 
+  count = {}
   i = 0
-  for basket in baskets_data:
+  for clump in data:
     if(i % 10000) == 0: # print every 10,000 iterations
       print("Checking line %d in first pass" % i)
-    for item in basket:
+    for item in clump:
       if not [item] in Ck:
         Ck.append([item])
     i += 1

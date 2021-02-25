@@ -29,6 +29,7 @@ def GetDataItems(baskets_data):
 # Prune step
 def DetermineFrequentItems(baskets_data, Ck, min_support):
   print("Determining Frequent Items...")
+  print("Set we are working with: " + str(Ck))
   count = {}
   freq_items = []
   Lk = []
@@ -48,6 +49,7 @@ def DetermineFrequentItems(baskets_data, Ck, min_support):
           count[candidate] += 1
   # calc support for each item in c1
   for item in count:
+    print("Count of " + str(item) + " is: " + str(count[item]))
     support = count[item] / len(baskets_data)
     if support >= min_support:
       freq_items.insert(0, support)
@@ -66,11 +68,11 @@ def CreateCK(Lk, k):
   n = len(Lk)
   for i in range(n):
     for j in range(i+1, n):
-      L1 = list(Lk[i])[:k-2] # get everything up until index [k-2]
-      L2 = list(Lk[j])[:k-2]
+      L1 = list(Lk[i])[:0] # get everything up until index [k-2]
+      L2 = list(Lk[j])[:0]
       L1.sort()
       L2.sort()
-      if L1 == L2:
+      if L1 == L2 and (Lk[i] | Lk[j] not in cand_list):
         cand_list.append(Lk[i] | Lk[j])
   return cand_list
 

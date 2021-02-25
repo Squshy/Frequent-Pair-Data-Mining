@@ -24,7 +24,7 @@ baskets_data = [
 min_support = 0.5
 
 data, supp = Apriori(baskets_data, 2, min_support)
-SaveDataToFile(data, supp, "apri_test.data")
+SaveDataToFile(data, supp, "apri_test.out")
 df = pd.DataFrame(list(data), columns=['Item 1', 'Item 2'])
 #print("Running Apriori")
 #s_t = time()

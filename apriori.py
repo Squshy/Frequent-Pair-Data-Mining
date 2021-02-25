@@ -6,11 +6,16 @@
 # cK : list of candidate those might be frequent items
 # lK : The set of truly frequent items
 def GetDataItems(baskets_data):
+  print("Getting unique items in baskets...")
   Ck = [] 
+  i = 0
   for basket in baskets_data:
+    if(i % 10000) == 0: # print every 10,000 iterations
+      print("Checking line %d in first pass" % i)
     for item in basket:
       if not [item] in Ck:
         Ck.append([item])
+    i += 1
   return [set(x) for x in Ck]
 
 # calculate the support
@@ -23,6 +28,7 @@ def GetDataItems(baskets_data):
 # l1 = list of frequent items for next step
 # Prune step
 def DetermineFrequentItems(baskets_data, Ck, min_support):
+  print("Determining Frequent Items...")
   count = {}
   freq_items = []
   Lk = []
@@ -44,10 +50,9 @@ def DetermineFrequentItems(baskets_data, Ck, min_support):
   for item in count:
     support = count[item] / len(baskets_data)
     if support >= min_support:
-      freq_items.insert(0, item)
-      freq_items.insert(1, support)
+      freq_items.insert(0, support)
       Lk.insert(0, item)
-  return Lk
+  return Lk, freq_items
 
 # Pass 2
 # Given Lk, generate Ck+1 in two steps
@@ -56,6 +61,7 @@ def DetermineFrequentItems(baskets_data, Ck, min_support):
 # CreateCk - Takes a list of frequent items Lk, and size of the itemsets, k, and complete this with two for loops
 # Join Step
 def CreateCK(Lk, k):
+  print("Creating Ck...")
   cand_list = []
   n = len(Lk)
   for i in range(n):
@@ -71,12 +77,12 @@ def CreateCK(Lk, k):
 # Runs Apriori algorithm on the data set passed, granting k sized item groupings that pass support of min_support
 # Returns final frequent list
 def Apriori(baskets_data, k, min_support):
-  Lk, CK = [], []
+  Lk, CK, freq_items = [], [], []
   for i in range(k):
     if(i == 0): # First run of loop
       Ck = GetDataItems(baskets_data)
     else:
       Ck = CreateCK(Lk, k)
-    Lk = DetermineFrequentItems(baskets_data, Ck, min_support)
-  return Lk
+    Lk, freq_items = DetermineFrequentItems(baskets_data, Ck, min_support)
+  return Lk, freq_items
     

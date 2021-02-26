@@ -73,10 +73,12 @@ def JoinStep(items, k):
   n = len(items)
   for i in range(n):
     for j in range(i+1, n):
+      # If the pairs of items share the first item 
       if items[i][0] == items[j][0]:
         lst1 = [str(i) for i in np.asarray(list(items[i]))]   # Convert every item to string so types match
         lst2 = [str(i) for i in np.asarray(list(items[j]))]   # Convert every item to string so types match
-        temp_ = lst1 + list(set(lst2) - set(lst1))
+        temp_ = lst1 + list(set(lst2) - set(lst1))  # Creates the joined list
+        # If we currently do not have this list saved, save it
         if temp_ not in joined:
           joined.append(temp_)
   return joined

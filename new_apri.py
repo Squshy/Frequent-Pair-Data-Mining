@@ -69,34 +69,54 @@ def CreateCandidates(prev_freq_items, k):
 
 # Attempt at join step
 def JoinStep(items, k):
+  print("Join step with k = %d" % k)
   joined = []
   n = len(items)
   for i in range(n):
     for j in range(i+1, n):
-      # If the pairs of items share the first item 
-      if items[i][0] == items[j][0]:
-        lst1 = [str(i) for i in np.asarray(list(items[i]))]   # Convert every item to string so types match
-        lst2 = [str(i) for i in np.asarray(list(items[j]))]   # Convert every item to string so types match
-        temp_ = lst1 + list(set(lst2) - set(lst1))  # Creates the joined list
-        # If we currently do not have this list saved, save it
-        if temp_ not in joined:
-          joined.append(temp_)
+      itemset_1 = list(items[i])
+      itemset_2 = list(items[j])
+      itemset_1.sort()
+      itemset_2.sort()
+      if itemset_1[:k-1] == itemset_2[:k-1]:
+        joined.append(list(set(itemset_1) | set(itemset_2)))
+      # itemset_1 = np.asarray(list(items[i]))
+      # itemset_2 = np.asarray(list(items[j]))
+      # itemset_1.sort()
+      # itemset_2.sort()
+      # print("Itemset 1: " + str(itemset_1[:k-1]))
+      # print("Itemset 2: " + str(itemset_2[:k-1]))
+      # # If the pairs of items share the first item 
+      # if tuple(itemset_1[:k-1]) == tuple(itemset_2[:k-1]):
+      #   lst1 = [str(i) for i in np.asarray(list(items[i]))]   # Convert every item to string so types match
+      #   lst2 = [str(i) for i in np.asarray(list(items[j]))]   # Convert every item to string so types match
+      #   temp_ = lst1 + list(set(lst2) - set(lst1))  # Creates the joined list
+      #   print("Temp: " + str(temp_))
+      #   # If we currently do not have this list saved, save it
+      #   if temp_ not in joined:
+      #     joined.append(temp_)
+  print("Joined: " + str(joined))
   return joined
 
 # Attempt at pruning items
 def PruneStep(candidates_list, freq_items, k):
+  print("\n\nPruning step with k = %d" % k)
+  print("Prev frequent items: " + str(freq_items))
+  print("Candidate list: " + str(candidates_list))
   new_freq_items = []     # list of new frequent items
   temp_ = []              # Temp list used to hold current subset of items
 
   # For every candidate in the candidate list 
   for candidates in candidates_list:
     is_frequent = True    # Set a frequent flag to true
-    temp_ = rSubset(candidates, k - 1)  # Create a subset of items equal to the length of k-1
+    temp_ = rSubset(np.asarray(candidates), k)  # Create a subset of items equal to the length of k-1
                                         # This is used for checking if all previous subsets are frequent
                                         # The new set must be frequent then
+    print("Temp groupings: " + str(temp_))
     # For every candidate set of items in the temp list just created
     for candidate in temp_:
       candidate = tuple(sorted(candidate))  # Sort the tuple 
+      print("Candidate: " + str(candidate))
       # If the candidate grouping is not in the frequent items
       # We know the current merged set cannot be frequent
       if candidate not in freq_items:
@@ -105,7 +125,7 @@ def PruneStep(candidates_list, freq_items, k):
     # If the candidate is frequent 
     # Add it to the frequent items
     if is_frequent:
-      new_freq_items.append(candidates)
+      new_freq_items.append(tuple(candidates))  # Save candidates as tuple
   return new_freq_items
     
 # Run apriori algorithm
@@ -115,8 +135,11 @@ def PruneStep(candidates_list, freq_items, k):
 # k: How many items we want in a set
 def Apriori(data, support, k):
   occ, freq = PassOne(data, support)
-  occ2, freq2 = PassTwo(data, freq, support)
+  occ, freq = PassTwo(data, freq, support)
   if k > 2:
-    return CreateCandidates(freq2, k)
-  return occ2, freq2
+    for i in range(2, k+1):
+      candidates = CreateCandidates(freq, i)
+      freq = candidates
+    return candidates
+  return occ, freq
   

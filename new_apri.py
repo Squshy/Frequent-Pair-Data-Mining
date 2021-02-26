@@ -30,6 +30,7 @@ def PassTwo(data, frequent_list, support):
       temp_ = rSubset(line, 2)  # Create sets of pairs from the line
       # For every pair of items in the current list of item pairs
       for item_set in temp_:
+        item_set = tuple(sorted(item_set))  # sort the tuple
         is_frequent = True  # set a frequent flag to true
         # For every individual item in the pear
         for item in item_set:
@@ -93,6 +94,7 @@ def PruneStep(candidates_list, freq_items, k):
                                         # The new set must be frequent then
     # For every candidate set of items in the temp list just created
     for candidate in temp_:
+      candidate = tuple(sorted(candidate))  # Sort the tuple 
       # If the candidate grouping is not in the frequent items
       # We know the current merged set cannot be frequent
       if candidate not in freq_items:
@@ -108,7 +110,7 @@ def PruneStep(candidates_list, freq_items, k):
 # Run apriori algorithm
 # ARGUMENTS
 # data: The data to parse through
-# support: Array of support threshholds to check
+# support: Array of support threshholds to check **TODO**
 # k: How many items we want in a set
 def Apriori(data, support, k):
   freq = PassOne(data, support)

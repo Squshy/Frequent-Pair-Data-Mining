@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from itertools import combinations
 
 def GetItemsetFromFile(file):
   return [i.strip().split() for i in open(file, 'r').readlines()]
@@ -47,3 +48,6 @@ def SaveDataFrameToHTMLFile(df, filename):
   file = open(filepath, 'a')
   file.write(html)
   file.close()
+
+def rSubset(data, r):
+  return list(combinations(data, r))

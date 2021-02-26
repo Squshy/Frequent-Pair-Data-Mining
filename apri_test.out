@@ -2,4 +2,4 @@
 {onion, apple} Support: 0.50
 {orange, bear} Support: 0.50
 {orange, onion} Support: 0.60
-{apple, bear} Support: 0.50
+{bear, apple} Support: 0.50

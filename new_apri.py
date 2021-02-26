@@ -48,17 +48,19 @@ def PassTwo(data, frequent_list, support):
           else:
             occurences[item_set] += 1
   # Return the dictionary of occurences and also the frequent items
-  return occurences, GetFrequentItems(occurences, support * len(data))
+  return GetFrequentItems(occurences, support * len(data))
 
 # Function to get a list of frequent items from passed data depending on support value
 def GetFrequentItems(occurences, support):
   frequent_items = [] # list of frequent items to be returned
+  items_occurences = []  # list of support values for the items
   # Loop through every item in the occurences
   for item in occurences:
     # If that item has occured more than support threshold append it to frequent items
     if occurences[item] >= support:
       frequent_items.append(item)
-  return frequent_items
+      items_occurences.append(occurences[item])
+  return items_occurences, frequent_items
 
 # Attempt at creating candidates
 def CreateCandidates(prev_freq_items, k):
@@ -71,13 +73,12 @@ def JoinStep(items, k):
   n = len(items)
   for i in range(n):
     for j in range(i+1, n):
-      L1 = list(items[i])[:0] # get everything up until index [k-2]
-      L2 = list(items[j])[:0]
-      L1.sort()
-      L2.sort()
-      if L1 == L2 and (list(set(items[i]) | set(items[j])) not in joined):
-        joined.append(list(set(items[i]) | set(items[j])))
-  print("Joined list: " + str(joined))
+      if items[i][0] == items[j][0]:
+        lst1 = [str(i) for i in np.asarray(list(items[i]))]   # Convert every item to string so types match
+        lst2 = [str(i) for i in np.asarray(list(items[j]))]   # Convert every item to string so types match
+        temp_ = lst1 + list(set(lst2) - set(lst1))
+        if temp_ not in joined:
+          joined.append(temp_)
   return joined
 
 # Attempt at pruning items
@@ -87,7 +88,6 @@ def PruneStep(candidates_list, freq_items, k):
 
   # For every candidate in the candidate list 
   for candidates in candidates_list:
-    print("Candidates: " + str(candidates))
     is_frequent = True    # Set a frequent flag to true
     temp_ = rSubset(candidates, k - 1)  # Create a subset of items equal to the length of k-1
                                         # This is used for checking if all previous subsets are frequent
@@ -98,7 +98,6 @@ def PruneStep(candidates_list, freq_items, k):
       # If the candidate grouping is not in the frequent items
       # We know the current merged set cannot be frequent
       if candidate not in freq_items:
-        print(str(candidate) + " is not in frequent items: " + str(freq_items))
         is_frequent = False   # Set the frequent flag to false
 
     # If the candidate is frequent 
@@ -113,8 +112,9 @@ def PruneStep(candidates_list, freq_items, k):
 # support: Array of support threshholds to check **TODO**
 # k: How many items we want in a set
 def Apriori(data, support, k):
-  freq = PassOne(data, support)
+  occ, freq = PassOne(data, support)
   occ2, freq2 = PassTwo(data, freq, support)
   if k > 2:
     return CreateCandidates(freq2, k)
-  return freq2
+  return occ2, freq2
+  

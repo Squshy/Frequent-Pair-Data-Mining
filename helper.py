@@ -1,9 +1,10 @@
 import os
 import pandas as pd
+import numpy as np
 from itertools import combinations
 
 def GetItemsetFromFile(file):
-  return [i.strip().split() for i in open(file, 'r').readlines()]
+  return np.asarray([i.strip().split() for i in open(file, 'r').readlines()])
 
 def SaveDataToFile(data, support, filename):
   try:
@@ -44,10 +45,16 @@ def SaveDataFrameToHTMLFile(df, filename):
     os.remove(filename)
   except OSError:
     pass
-  filepath = "./html_files/" + filename + ".html"
+  filepath = "./report/table_files/" + filename + ".html"
   file = open(filepath, 'a')
   file.write(html)
   file.close()
 
 def rSubset(data, r):
   return list(combinations(data, r))
+
+def GetSubsectionOfData(data, percent):
+  data_len = len(data)
+  amount_of_data = round(data_len * percent)
+  print("%d%% of %d is %d" % ((percent * 100), data_len, len(data[:amount_of_data])))
+  return data[:amount_of_data]

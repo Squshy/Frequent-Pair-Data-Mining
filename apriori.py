@@ -1,89 +1,137 @@
-# Authors: Calvin Lapp, Hooria Hajiyan
+import numpy as np
+from helper import rSubset
 
-# Pass 1
-# Read dataset and find individual items
-# Find frequent Items
-# cK : list of candidate those might be frequent items
-# lK : The set of truly frequent items
-def GetDataItems(data):
-  print("Getting unique items in baskets...")
-  Ck = [] 
-  count = {}
+# First pass of data
+def PassOne(data, support):
+  occurences = {}           # Save the number of times an item has occured in the data 
   i = 0
-  for clump in data:
-    if(i % 10000) == 0: # print every 10,000 iterations
-      print("Checking line %d in first pass" % i)
-    for item in clump:
-      if not [item] in Ck:
-        Ck.append([item])
-    i += 1
-  return [set(x) for x in Ck]
+  # Loop through every line in the data
+  for line in data:
+    if i % 50000 == 0:
+      print("Reading line %d of %d" % (i, len(data)))
+    # Loop through every item in that line
+    for item in line:
+      # If the item is not currently accounted for, set its counter to 1
+      if item not in occurences:
+        occurences[item] = 1
+      # If it is accoutned for, add one to its counter
+      else:
+        occurences[item] += 1
+    i +=1
+  # Return a list of frequent items
+  return GetFrequentItems(occurences, support * len(data))
 
-# calculate the support
-# scan through transaction data and return a list of candidates that meet the support threshold 
-# and support data about the current candidates
-#
-# arguments:
-# count: a dictionary
-# freq_item: a list to return the frequent items and supports
-# l1 = list of frequent items for next step
-# Prune step
-def DetermineFrequentItems(baskets_data, Ck, min_support):
-  print("Determining Frequent Items...")
-  count = {}
-  freq_items = []
-  Lk = []
-  min_support = min_support
-  # Loop through baskets
-  for basket in baskets_data:
-    # Check each item in the basket
-    for item in Ck:
-      # If the item is a subset of the basket (if the item is in the basket)
-      if item.issubset(basket):
-        candidate = frozenset(item)
-        # If the candidate is not in count, then create it and initialize its count to 1
-        if candidate not in count:
-          count[candidate] = 1
-        # Otherwise add to its count
-        else:
-          count[candidate] += 1
-  # calc support for each item in c1
-  for item in count:
-    support = count[item] / len(baskets_data)
-    if support >= min_support:
-      freq_items.insert(0, support)
-      Lk.insert(0, item)
-  return Lk, freq_items
+# Second pass of data
+def PassTwo(data, frequent_list, support):
+  occurences = {} # Save the number of times an item has occured in the data 
+  temp_ = []      # Temporary array used to save the current subset we are looking at
+  # Loop through every line in the data
+  i = 0
+  for line in data:
+    if i % 50000 == 0:
+      print("Reading line %d of %d in pass two" % (i, len(data)))
+    i+=1
+    # If the length of the line is greater than 2
+    # Checking for lines that only have 1 data item in it
+    # If there is only one item, then there cant be any pairs here
+    if(len(line) >= 2):
+      temp_ = rSubset(line, 2)  # Create sets of pairs from the line
+      # For every pair of items in the current list of item pairs
+      for item_set in temp_:
+        item_set = tuple(sorted(item_set))  # sort the tuple
+        is_frequent = True  # set a frequent flag to true
+        # For every individual item in the pear
+        for item in item_set:
+          # If the item is not in the previously counted frequent list
+          if item not in frequent_list:
+            is_frequent = False     # Set the frequent flag to false
+        # If the pair is frequent
+        if is_frequent == True:
+          # If the pair isn't already accounted for in the occurences
+          # Initialize that pairs count to 1
+          if item_set not in occurences:
+            occurences[item_set] = 1
+          # If the pair has been accounted for already
+          # Add one to that pairs count
+          else:
+            occurences[item_set] += 1
+  # Return the dictionary of occurences and also the frequent items
+  return GetFrequentItems(occurences, support * len(data))
 
-# Pass 2
-# Given Lk, generate Ck+1 in two steps
-# Join Step - Join Lk with Lk by joining tow k itemsets in Lk
-# Pruning step - Delete all candidates in Ck+1 that are non-frequent subsets
-# CreateCk - Takes a list of frequent items Lk, and size of the itemsets, k, and complete this with two for loops
-# Join Step
-def CreateCK(Lk, k):
-  print("Creating Ck...")
-  cand_list = []
-  n = len(Lk)
+# Function to get a list of frequent items from passed data depending on support value
+def GetFrequentItems(occurences, support):
+  frequent_items = [] # list of frequent items to be returned
+  items_occurences = []  # list of support values for the items
+  # Loop through every item in the occurences
+  for item in occurences:
+    # If that item has occured more than support threshold append it to frequent items
+    if occurences[item] >= support:
+      frequent_items.append(item)
+      items_occurences.append(occurences[item])
+  return items_occurences, frequent_items
+
+# Attempt at creating candidates
+def CreateCandidates(prev_freq_items, occurences, k):
+  candidates = JoinStep(prev_freq_items, k)
+  return PruneStep(candidates, prev_freq_items, occurences, k)
+
+# Attempt at join step
+def JoinStep(items, k):
+  joined = []
+  n = len(items)
   for i in range(n):
     for j in range(i+1, n):
-      L1 = list(Lk[i])[:0] # get everything up until index [k-2]
-      L2 = list(Lk[j])[:0]
-      L1.sort()
-      L2.sort()
-      if L1 == L2 and (Lk[i] | Lk[j] not in cand_list):
-        cand_list.append(Lk[i] | Lk[j])
-  return cand_list
+      itemset_1 = list(items[i])  # Get the first item list to check
+      itemset_2 = list(items[j])  # Get the second item list to check
+      # Sort the item lists
+      itemset_1.sort()
+      itemset_2.sort()
+      # If the first [k-1] items of the lists are the same, append them to a candidate list
+      if itemset_1[:k-1] == itemset_2[:k-1]:
+        candidate = list(set(itemset_1) | set(itemset_2))
+        candidate.sort()  # Sort the candidate list
+                          # This helps solve problems in the pruning step
+        joined.append(candidate)
+  # Return the list of joined candidates
+  return joined
 
-# Runs Apriori algorithm on the data set passed, granting k sized item groupings that pass support of min_support
-# Returns final frequent list
-def Apriori(baskets_data, k, min_support):
-  Lk, CK, freq_items = [], [], []
-  for i in range(k):
-    if(i == 0): # First run of loop
-      Ck = GetDataItems(baskets_data)
-    else:
-      Ck = CreateCK(Lk, k)
-    Lk, freq_items = DetermineFrequentItems(baskets_data, Ck, min_support)
-  return Lk, freq_items
+# Attempt at pruning items
+def PruneStep(candidates_list, freq_items, occurences, k):
+  new_freq_items = []     # list of new frequent items
+  temp_ = []              # Temp list used to hold current subset of items
+
+  # For every candidate in the candidate list 
+  for candidates in candidates_list:
+    is_frequent = True    # Set a frequent flag to true
+    temp_ = rSubset(np.asarray(candidates), k)  # Create a subset of items equal to the length of k
+                                                # This is used for checking if all previous subsets are frequent
+                                                # The new set must be frequent then
+    # For every candidate set of items in the temp list just created
+    for candidate in temp_:
+      candidate = tuple(candidate)  # Sort the tuple 
+      # If the candidate grouping is not in the frequent items
+      # We know the current merged set cannot be frequent
+      if candidate not in freq_items:
+        is_frequent = False   # Set the frequent flag to false
+
+    # If the candidate is frequent 
+    # Add it to the frequent items
+    if is_frequent:
+      new_freq_items.append(tuple(candidates))  # Save candidates as tuple
+  return new_freq_items
     
+# Run apriori algorithm
+# ARGUMENTS
+# data: The data to parse through
+# support: Array of support threshholds to check **TODO**
+# k: How many items we want in a set
+def Apriori(data, support, k):
+  occ, freq = PassOne(data, support)
+  occ, freq = PassTwo(data, freq, support)
+  if k > 2:
+    for i in range(2, k):
+      candidates = CreateCandidates(freq, occ, i)
+      freq = candidates
+    return candidates
+  return occ, freq
+  

@@ -41,11 +41,11 @@ def CreateSupportList(data, support):
 
 def SaveDataFrameToHTMLFile(df, filename):
   html = df.to_html()
+  filepath = "./report/table_files/" + filename + ".html"
   try:
-    os.remove(filename)
+    os.remove(filepath)
   except OSError:
     pass
-  filepath = "./report/table_files/" + filename + ".html"
   file = open(filepath, 'a')
   file.write(html)
   file.close()

@@ -43,3 +43,15 @@ def GetSubsectionOfData(data, percent):
   amount_of_data = round(data_len * percent)
   print("%d%% of %d is %d" % ((percent * 100), data_len, len(data[:amount_of_data])))
   return data[:amount_of_data]
+
+# Function to get a list of frequent items from passed data depending on support value
+def GetFrequentItems(occurences, support):
+  frequent_items = [] # list of frequent items to be returned
+  items_occurences = []  # list of support values for the items
+  # Loop through every item in the occurences
+  for item in occurences:
+    # If that item has occured more than support threshold append it to frequent items
+    if occurences[item] >= support:
+      frequent_items.append(item)
+      items_occurences.append(occurences[item])
+  return items_occurences, frequent_items

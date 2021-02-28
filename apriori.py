@@ -1,5 +1,5 @@
 import numpy as np
-from helper import rSubset
+from helper import rSubset, GetFrequentItems
 
 # First pass of data
 def PassOne(data, support):
@@ -57,18 +57,6 @@ def PassTwo(data, frequent_list, support):
             occurences[item_set] += 1
   # Return the dictionary of occurences and also the frequent items
   return GetFrequentItems(occurences, support * len(data))
-
-# Function to get a list of frequent items from passed data depending on support value
-def GetFrequentItems(occurences, support):
-  frequent_items = [] # list of frequent items to be returned
-  items_occurences = []  # list of support values for the items
-  # Loop through every item in the occurences
-  for item in occurences:
-    # If that item has occured more than support threshold append it to frequent items
-    if occurences[item] >= support:
-      frequent_items.append(item)
-      items_occurences.append(occurences[item])
-  return items_occurences, frequent_items
 
 # Attempt at creating candidates
 def CreateCandidates(prev_freq_items, occurences, k):

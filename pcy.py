@@ -32,24 +32,35 @@ def PassOne(data, support):
     for pair in pairs_of_items:
       # Hash the pair to a bucket
       key = HashFunction(pair, len(data))
+      # If the key has not already been instered in the dictionary add it
+      # If it has, add one to the count
       if key not in hash_table:
         hash_table[key] = 1
       else: 
         hash_table[key] += 1
+  # Get the occurences and frequent items from the first pass
   occurences, frequent_items = GetFrequentItems(occurences, support * len(data))
+  # Return the hash table, occurences, and frequent items
   return hash_table, occurences, frequent_items
 
+# Determine if a bucket is frequent or not in a hashtable
 def DetermineFrequentBuckets(hash_table, support):
   freq_buckets = {}
+  # Look through all buckets
   for bucket in hash_table:
+    # If the occurrences of hashed items is greater than the support
+    # Should add a bit vector here?  Not sure how
     if hash_table[bucket] >= support:
       freq_buckets[bucket] = 1
   return freq_buckets
 
+# Second pass of PCY algorithm
 def PassTwo(data, frequent_items, support, bitmap):
   frequent_candidates = {}
 
+  # Loop through all lines in the data
   for line in data:
+    # If the line has enough items to make a pair
     if(len(line) >= 2):
       temp_ = rSubset(line, 2)  # Create sets of pairs from the line
       # For every pair of items in the current list of item pairs
@@ -63,8 +74,11 @@ def PassTwo(data, frequent_items, support, bitmap):
             is_frequent = False     # Set the frequent flag to false
         # If the pair is frequent
         if is_frequent == True:
+          # Get the key from the hash function relating this pair
           key = HashFunction(item_set, len(data))
+          # If the pair is in the bit map
           if key in bitmap:
+            # If the pair is not currently in the occurences list
             if item_set not in frequent_candidates:
               frequent_candidates[item_set] = 1
             else: 

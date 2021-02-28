@@ -4,6 +4,10 @@ from helper import rSubset, GetFrequentItems
 
 # Hash function for mapping data to buckets
 def HashFunction(pair, data_size):
+  # pair[0] is the first item in the pair
+  # pair[1] is second item in the pair
+  # Multiply their integer values together
+  # Get the modulous of that scalar of the length of data * 30%
   return math.floor((int(pair[0]) * int(pair[1])) % (data_size * .3))
 
 # First pass of data
@@ -45,7 +49,7 @@ def PassOne(data, support):
 
 # Determine if a bucket is frequent or not in a hashtable
 def DetermineFrequentBuckets(hash_table, support):
-  freq_buckets = {}
+  freq_buckets = {}   # Brand new hash table that will only have possible frequent items
   # Look through all buckets
   for bucket in hash_table:
     # If the occurrences of hashed items is greater than the support

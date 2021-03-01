@@ -55,3 +55,15 @@ def GetFrequentItems(occurences, support):
       frequent_items.append(item)
       items_occurences.append(occurences[item])
   return items_occurences, frequent_items
+
+# Returns a dataframe of pair occurrences and frequency
+def CreatePairDataFrame(occurences, frequency_list, length_of_data):
+  data = np.asarray(list((zip(frequency_list, occurences))))
+  data1 = np.array([item[0] for item in data[:,0]])
+  data2 = np.array([item[1] for item in data[:,0]])
+  return pd.DataFrame({'Item 1': data1, 'Item 2': data2, 'Support': data[:,-1] / length_of_data})
+
+# Returns a dataframe of triple occurences
+def CreateTripleDataFrame(frequency_list):
+  triple_array = np.asarray([np.array(x) for x in frequency_list])
+  return pd.DataFrame({'Item 1': triple_array[:,0], 'Item 2': triple_array[:,1], 'Item 3': triple_array[:,-1]})

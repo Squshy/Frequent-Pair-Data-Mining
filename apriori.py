@@ -19,7 +19,7 @@ def PassOne(data, support):
         occurences[item] += 1
     i +=1
   # Return a list of frequent items
-  return GetFrequentItems(occurences, support * len(data))
+  return GetFrequentItems(occurences, support)
 
 # Second pass of data
 def PassTwo(data, frequent_list, support):
@@ -56,7 +56,7 @@ def PassTwo(data, frequent_list, support):
           else:
             occurences[item_set] += 1
   # Return the dictionary of occurences and also the frequent items
-  return GetFrequentItems(occurences, support * len(data))
+  return GetFrequentItems(occurences, support)
 
 # Attempt at creating candidates
 def CreateCandidates(prev_freq_items, occurences, k):
@@ -105,7 +105,8 @@ def PruneStep(candidates_list, freq_items, occurences, k):
     # If the candidate is frequent 
     # Add it to the frequent items
     if is_frequent:
-      new_freq_items.append(tuple(candidates))  # Save candidates as tuple
+      candidates = tuple(candidates)
+      new_freq_items.append(candidates)  # Save candidates as tuple
   return new_freq_items
     
 # Run apriori algorithm
@@ -114,8 +115,10 @@ def PruneStep(candidates_list, freq_items, occurences, k):
 # support: Array of support threshholds to check **TODO**
 # k: How many items we want in a set
 def Apriori(data, support, k):
-  occ, freq = PassOne(data, support)
-  occ, freq = PassTwo(data, freq, support)
+  min_support = support * len(data)
+  print("Min support: %.5f" % min_support)
+  occ, freq = PassOne(data, min_support)
+  occ, freq = PassTwo(data, freq, min_support)
   if k > 2:
     for i in range(2, k):
       candidates = CreateCandidates(freq, occ, i)

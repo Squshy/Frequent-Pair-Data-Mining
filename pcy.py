@@ -49,7 +49,7 @@ def PassOne(data, support):
 
 # Determine if a bucket is frequent or not in a hashtable
 def DetermineFrequentBuckets(hash_table, support):
-  freq_buckets = {}   # Brand new hash table that will only have possible frequent items
+  freq_buckets = np.zeros(len(hash_table))   # New vector that will only have possible frequent items
   # Look through all buckets
   for bucket in hash_table:
     # If the occurrences of hashed items is greater than the support
@@ -61,7 +61,6 @@ def DetermineFrequentBuckets(hash_table, support):
 # Second pass of PCY algorithm
 def PassTwo(data, frequent_items, support, bitmap):
   frequent_candidates = {}
-
   # Loop through all lines in the data
   for line in data:
     # If the line has enough items to make a pair
@@ -81,7 +80,7 @@ def PassTwo(data, frequent_items, support, bitmap):
           # Get the key from the hash function relating this pair
           key = HashFunction(item_set, len(data))
           # If the pair is in the bit map
-          if key in bitmap:
+          if bitmap[key] == 1:
             # If the pair is not currently in the occurences list
             if item_set not in frequent_candidates:
               frequent_candidates[item_set] = 1
@@ -93,4 +92,7 @@ def PCY(data, support, k):
   hash_table, occurences, freq_items = PassOne(data, support)
   bitmap = DetermineFrequentBuckets(hash_table, support)
   pair_occurences, freq_pairs = PassTwo(data, freq_items, support, bitmap)
-  return freq_pairs
+  if k > 2:
+    ...
+  else:
+    return freq_pairs

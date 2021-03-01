@@ -41,7 +41,7 @@ def rSubset(data, r):
 def GetSubsectionOfData(data, percent):
   data_len = len(data)
   amount_of_data = round(data_len * percent)
-  print("%d%% of %d is %d" % ((percent * 100), data_len, len(data[:amount_of_data])))
+  # print("%d%% of %d is %d" % ((percent * 100), data_len, len(data[:amount_of_data])))
   return data[:amount_of_data]
 
 # Function to get a list of frequent items from passed data depending on support value
@@ -67,3 +67,6 @@ def CreatePairDataFrame(occurences, frequency_list, length_of_data):
 def CreateTripleDataFrame(frequency_list):
   triple_array = np.asarray([np.array(x) for x in frequency_list])
   return pd.DataFrame({'Item 1': triple_array[:,0], 'Item 2': triple_array[:,1], 'Item 3': triple_array[:,-1]})
+
+def PrintTimeInfo(algo, percent_of_data, time, support, word):
+  print("Time taken to complete %s on %d%% of data using %s of retail data: %.2f seconds with support: %d%%" % (algo, percent_of_data, word, time, (support * 100)))

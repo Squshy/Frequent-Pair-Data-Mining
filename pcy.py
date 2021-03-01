@@ -14,11 +14,8 @@ def HashFunction(pair, data_size):
 def PassOne(data, support):
   occurences = {}   # Save the number of times an item has occured in the data 
   hash_table = {}   # Hash table to save data of pairs hashed to a bucket 
-  i = 0
   # Loop through every line in the data
   for line in data:
-    if i % 50000 == 0:
-      print("Reading line %d of %d" % (i, len(data)))
     # Loop through every item in that line
     for item in line:
       # If the item is not currently accounted for, set its counter to 1
@@ -27,7 +24,6 @@ def PassOne(data, support):
       # If it is accoutned for, add one to its counter
       else:
         occurences[item] += 1
-    i +=1
     #
     # Everything till now was same as Apriori
     # NEW TO PCY
@@ -88,11 +84,65 @@ def PassTwo(data, frequent_items, support, bitmap):
               frequent_candidates[item_set] += 1
   return GetFrequentItems(frequent_candidates, support * len(data))
 
+# Attempt at creating candidates
+def CreateCandidates(prev_freq_items, occurences, k):
+  candidates = JoinStep(prev_freq_items, k)
+  return PruneStep(candidates, prev_freq_items, occurences, k)
+
+# Attempt at join step
+def JoinStep(items, k):
+  
+  joined = []
+  n = len(items)
+  for i in range(n):
+    for j in range(i+1, n):
+      itemset_1 = list(items[i])  # Get the first item list to check
+      itemset_2 = list(items[j])  # Get the second item list to check
+      # Sort the item lists
+      itemset_1.sort()
+      itemset_2.sort()
+      # If the first [k-1] items of the lists are the same, append them to a candidate list
+      if itemset_1[:k-1] == itemset_2[:k-1]:
+        candidate = list(set(itemset_1) | set(itemset_2))
+        candidate.sort()  # Sort the candidate list
+                          # This helps solve problems in the pruning step
+        joined.append(candidate)
+  # Return the list of joined candidates
+  return joined
+
+# Attempt at pruning items
+def PruneStep(candidates_list, freq_items, occurences, k):
+  new_freq_items = []     # list of new frequent items
+  temp_ = []              # Temp list used to hold current subset of items
+
+  # For every candidate in the candidate list 
+  for candidates in candidates_list:
+    is_frequent = True    # Set a frequent flag to true
+    temp_ = rSubset(np.asarray(candidates), k)  # Create a subset of items equal to the length of k
+                                                # This is used for checking if all previous subsets are frequent
+                                                # The new set must be frequent then
+    # For every candidate set of items in the temp list just created
+    for candidate in temp_:
+      candidate = tuple(candidate)  # Sort the tuple 
+      # If the candidate grouping is not in the frequent items
+      # We know the current merged set cannot be frequent
+      if candidate not in freq_items:
+        is_frequent = False   # Set the frequent flag to false
+
+    # If the candidate is frequent 
+    # Add it to the frequent items
+    if is_frequent:
+      candidates = tuple(candidates)
+      new_freq_items.append(candidates)  # Save candidates as tuple
+  return new_freq_items
+
 def PCY(data, support, k):
   hash_table, occurences, freq_items = PassOne(data, support)
   bitmap = DetermineFrequentBuckets(hash_table, support)
-  pair_occurences, freq_pairs = PassTwo(data, freq_items, support, bitmap)
+  occ, freq = PassTwo(data, freq_items, support, bitmap)
   if k > 2:
-    ...
-  else:
-    return freq_pairs
+    for i in range(2, k):
+      candidates = CreateCandidates(freq, occ, i)
+      freq = candidates
+    return candidates
+  return occ, freq

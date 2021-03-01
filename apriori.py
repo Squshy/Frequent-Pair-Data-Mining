@@ -4,11 +4,8 @@ from helper import rSubset, GetFrequentItems
 # First pass of data
 def PassOne(data, support):
   occurences = {}           # Save the number of times an item has occured in the data 
-  i = 0
   # Loop through every line in the data
   for line in data:
-    if i % 50000 == 0:
-      print("Reading line %d of %d" % (i, len(data)))
     # Loop through every item in that line
     for item in line:
       # If the item is not currently accounted for, set its counter to 1
@@ -17,7 +14,6 @@ def PassOne(data, support):
       # If it is accoutned for, add one to its counter
       else:
         occurences[item] += 1
-    i +=1
   # Return a list of frequent items
   return GetFrequentItems(occurences, support)
 
@@ -26,11 +22,7 @@ def PassTwo(data, frequent_list, support):
   occurences = {} # Save the number of times an item has occured in the data 
   temp_ = []      # Temporary array used to save the current subset we are looking at
   # Loop through every line in the data
-  i = 0
   for line in data:
-    if i % 50000 == 0:
-      print("Reading line %d of %d in pass two" % (i, len(data)))
-    i+=1
     # If the length of the line is greater than 2
     # Checking for lines that only have 1 data item in it
     # If there is only one item, then there cant be any pairs here
@@ -65,6 +57,7 @@ def CreateCandidates(prev_freq_items, occurences, k):
 
 # Attempt at join step
 def JoinStep(items, k):
+
   joined = []
   n = len(items)
   for i in range(n):
@@ -112,11 +105,9 @@ def PruneStep(candidates_list, freq_items, occurences, k):
 # Run apriori algorithm
 # ARGUMENTS
 # data: The data to parse through
-# support: Array of support threshholds to check **TODO**
 # k: How many items we want in a set
 def Apriori(data, support, k):
   min_support = support * len(data)
-  print("Min support: %.5f" % min_support)
   occ, freq = PassOne(data, min_support)
   occ, freq = PassTwo(data, freq, min_support)
   if k > 2:

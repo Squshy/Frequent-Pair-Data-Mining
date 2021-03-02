@@ -1,15 +1,25 @@
-# Author: Calvin Lapp
+# Multistage Algorithm
+# Improvement on PCY
+# Author: Calvin Lapp 
 import numpy as np
 import math
 from helper import rSubset, GetFrequentItems
 
 # Hash function for mapping data to buckets
-def HashFunction(pair, data_size):
+def HashFunctionOne(pair, data_size):
   # pair[0] is the first item in the pair
   # pair[1] is second item in the pair
   # Multiply their integer values together
   # Get the modulous of that scalar of the length of data * 30%
   return math.floor((int(pair[0]) * int(pair[1])) % (data_size * .3))
+
+# Hash function for mapping data to buckets used in pass two of multistage
+def HashFunctionTwo(pair, data_size):
+  # pair[0] is the first item in the pair
+  # pair[1] is second item in the pair
+  # Multiply their integer values together
+  # Get the modulous of that scalar of the length of data * 15%
+  return math.floor((int(pair[0]) * int(pair[1])) % (data_size * .15))
 
 # First pass of data
 def PassOne(data, support):
@@ -25,14 +35,11 @@ def PassOne(data, support):
       # If it is accoutned for, add one to its counter
       else:
         occurences[item] += 1
-    #
-    # Everything till now was same as Apriori
-    # NEW TO PCY
-    #
+    
     pairs_of_items = rSubset(line, 2)  # Want to get pairs of items
     for pair in pairs_of_items:
       # Hash the pair to a bucket
-      key = HashFunction(pair, len(data))
+      key = HashFunctionOne(pair, len(data))
       # If the key has not already been instered in the dictionary add it
       # If it has, add one to the count
       if key not in hash_table:
@@ -75,7 +82,7 @@ def PassTwo(data, frequent_items, support, bitmap):
         # If the pair is frequent
         if is_frequent == True:
           # Get the key from the hash function relating this pair
-          key = HashFunction(item_set, len(data))
+          key = HashFunctionOne(item_set, len(data))
           # If the pair is in the bit map
           if bitmap[key] == 1:
             # If the pair is not currently in the occurences list

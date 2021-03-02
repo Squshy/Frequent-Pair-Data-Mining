@@ -1,3 +1,4 @@
+# Author: Calvin Lapp
 import numpy as np
 from helper import rSubset, GetFrequentItems
 

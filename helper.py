@@ -1,3 +1,5 @@
+# Helper functions used to for various algorithms and output
+# Author: Calvin Lapp
 import os
 import pandas as pd
 import numpy as np

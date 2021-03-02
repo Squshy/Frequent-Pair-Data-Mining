@@ -41,7 +41,19 @@ def rSubset(data, r):
 def GetSubsectionOfData(data, percent):
   data_len = len(data)
   amount_of_data = round(data_len * percent)
-  # print("%d%% of %d is %d" % ((percent * 100), data_len, len(data[:amount_of_data])))
+  return data[:amount_of_data]
+
+def SplitDataIntoChunks(data, chunk_size):
+  data_fragments = []
+  data_len = len(data)
+
+  data_size = chunk_size
+  while data_size < 1:
+    prev_data = GetSubsectionOfData(data, data_size)
+    print(len(prev_data))
+    data_size += data_size
+
+  amount_of_data = round(data_len * percent)
   return data[:amount_of_data]
 
 # Function to get a list of frequent items from passed data depending on support value

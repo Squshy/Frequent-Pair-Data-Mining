@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as pl
 from itertools import combinations
 
 # Reads a test file and returns its data in an array
@@ -84,3 +85,17 @@ def CreateTripleDataFrame(frequency_list):
 
 def PrintTimeInfo(algo, percent_of_data, time, support, word):
   print("Time taken to complete %s on %d%% of data using %s of retail data: %.2f seconds with support: %d%%" % (algo, percent_of_data, word, time, (support * 100)))
+
+# Creates a PL Plot using 2 arrays
+# The xdata array has 9 elements that are the timings of the algorithm ran 
+def CreatePLPlot(time_data, support_data, title):
+  new_sup = [support * 100 for support in support_data]
+  pl.plot(new_sup, time_data[0:3], '.-', color='blue', label="20% of data")
+  pl.plot(new_sup, time_data[3:6], '.-', color='green', label="40% of data")
+  pl.plot(new_sup, time_data[6:9], '.-', color='red', label="100% of data")
+  pl.legend(loc="upper right")
+  pl.title(title)
+  pl.xlabel("Support Threshold")
+  pl.ylabel("Time Taken")
+  pl.grid()
+  pl.show()
